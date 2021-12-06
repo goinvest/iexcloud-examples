@@ -18,35 +18,35 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(mostactiveCmd)
+	rootCmd.AddCommand(losersCmd)
 }
 
-var mostactiveCmd = &cobra.Command{
-	Use:   "active [limit]",
-	Short: "Retrieve quotes for the 10 most active stocks",
+var losersCmd = &cobra.Command{
+	Use:   "losers [limit]",
+	Short: "Retrieve the list of losers.",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg, err := domain.ReadConfig(configFileFlag)
-		if err != nil {
-			log.Fatalf("Error reading config file: %s", err)
-		}
 		var limit int
 		if len(args) == 1 {
 			var err error
 			if limit, err = strconv.Atoi(args[0]); err != nil {
-				log.Fatalf("Limit must be a number")
+				log.Fatalf("Invalid limit, must be a number: %s", args[0])
 			}
 		}
-		client := iex.NewClient(cfg.Token, iex.WithBaseURL(cfg.BaseURL))
-		q, err := client.MostActive(context.Background(), limit)
+		cfg, err := domain.ReadConfig(configFileFlag)
 		if err != nil {
-			log.Fatalf("Error getting quotes: %s", err)
+			log.Fatalf("Error reading config file: %s", err)
 		}
-		b, err := json.MarshalIndent(q, "", "  ")
+		client := iex.NewClient(cfg.Token, iex.WithBaseURL(cfg.BaseURL))
+		quote, err := client.Losers(context.Background(), limit)
+		if err != nil {
+			log.Fatalf("Error getting list: %s", err)
+		}
+		b, err := json.MarshalIndent(quote, "", "  ")
 		if err != nil {
 			log.Fatalf("Error marshaling into JSON: %s", err)
 		}
-		fmt.Println("## Most Active Quotes ##")
+		fmt.Println("## Gainers ##")
 		fmt.Println(string(b))
 	},
 }
