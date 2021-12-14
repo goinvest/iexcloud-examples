@@ -15,8 +15,9 @@ import (
 // Config contains the configuration information neecded to program and test
 // the adapaters.
 type Config struct {
-	Token   string
-	BaseURL string
+	Token      string
+	BaseURL    string
+	SSEBaseURL string
 }
 
 // ReadConfig will read the TOML config file.
